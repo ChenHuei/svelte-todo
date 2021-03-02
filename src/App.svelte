@@ -1,30 +1,54 @@
 <script>
-	export let name;
+  import Title from '@/components/Title.svelte'
+  import SearchBar from '@/components/SearchBar.svelte'
+  import List from '@/components/List.svelte'
+
+  let keyword = ''
+  let list = []
+
+  const onKeyPress = (e) => {
+    if (keyword && e.charCode === 13) {
+      addItem(keyword)
+    }
+  }
+
+  const addItem = () => {
+    const item = {
+      id: new Date().getTime(),
+      text: keyword.trim(),
+      done: false,
+    }
+    list = [...list, item]
+
+    // remove keyword
+    keyword = ''
+  }
+
+  const completeItem = (id) => {
+    list = list.map((item) =>
+      item.id === id ? { ...item, done: !item.done } : item,
+    )
+  }
 </script>
 
-<main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+<main class="w-full flex flex-col items-center">
+  <Title class="text-2xl my-4" title={'Svelte TODO'} />
+  <SearchBar
+    type="text"
+    placeholder="TODO"
+    bind:value={keyword}
+    on:keypress={onKeyPress}
+    on:click={addItem}
+  />
+  <List {list} on:complete={(event) => completeItem(event.detail)} />
 </main>
 
-<style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
+<style global lang="postcss">
+  /* only apply purgecss on utilities, per Tailwind docs */
+  /* purgecss start ignore */
+  @tailwind base;
+  @tailwind components;
+  /* purgecss end ignore */
 
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
+  @tailwind utilities;
 </style>
